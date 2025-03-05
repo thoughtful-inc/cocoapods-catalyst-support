@@ -45,13 +45,13 @@ module Pod
       pods_targets = pods_project.targets.filter do |target| target.name.start_with? "Pods-" end.filter do |target| target.platform_name == OSPlatform.ios.name end   # AbstractTarget
       targets_to_keep = pods_project.targets.filter do |target| !targets_to_remove.include?(target) && !pods_targets.include?(target) end.filter do |target| target.platform_name == OSPlatform.ios.name end   # AbstractTarget
 
-      ######  Determine which dependencies should be removed ###### 
-      dependencies_to_keep = targets_to_keep.reduce([]) do |dependencies, target| dependencies + target.other_linker_flags_dependencies end    
-      dependencies_to_keep = dependencies_to_keep + targets_to_keep.flat_map do |target| target.to_dependency end + pod_targets_to_keep.flat_map do |pod| pod.vendor_products + pod.frameworks end
-      
+      ######  Determine which dependencies should be removed ######      
       dependencies_to_remove = targets_to_remove.reduce([]) do |dependencies, target| dependencies + target.other_linker_flags_dependencies end
       dependencies_to_remove = dependencies_to_remove + targets_to_remove.flat_map do |target| target.to_dependency end + pod_targets_to_remove.flat_map do |pod| pod.vendor_products + pod.frameworks end
-      dependencies_to_remove = dependencies_to_remove.filter do |d|  !dependencies_to_keep.include? d end
+
+      dependencies_to_keep = targets_to_keep.reduce([]) do |dependencies, target| dependencies + target.other_linker_flags_dependencies end    
+      dependencies_to_keep = dependencies_to_keep + targets_to_keep.flat_map do |target| target.to_dependency end + pod_targets_to_keep.flat_map do |pod| pod.vendor_products + pod.frameworks end
+      dependencies_to_keep = dependencies_to_keep.filter do |d|  !dependencies_to_remove.include? d end
 
       ###### CATALYST NOT SUPPORTED LINKS ######       
       loggs "\n#### Unsupported dependencies ####\n"
